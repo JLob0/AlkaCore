@@ -1,0 +1,44 @@
+package com.alkacode.core;
+
+import com.alkacode.core.api.AlkaAPI;
+import com.alkacode.core.api.DatabaseProvider;
+import com.alkacode.core.database.CurrencyRepository;
+import com.alkacode.core.database.DatabaseFactory;
+import com.alkacode.core.economy.VaultEconomyBridge;
+import com.alkacode.core.gui.GuiListener;
+import com.alkacode.core.message.AlkaMessageProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
+/**
+ * Infraestrutura compartilhada da network Alka* - sem logica de jogo. Inicializa
+ * a conexao unica de banco, a economia (Vault), mensagens (MiniMessage) e o
+ * listener de GUI uma unica vez, e publica tudo via {@link AlkaAPI#get()} pra
+ * qualquer plugin que estenda {@link com.alkacode.core.plugin.AlkaPlugin}.
+ */
+public final class AlkaCorePlugin extends JavaPlugin {
+    private DatabaseProvider database;
+
+    @Override
+    public void onEnable() {
+        saveDefaultConfig();
+
+        this.database = DatabaseFactory.create(this);
+        CurrencyRepository currency = new CurrencyRepository(database);
+        VaultEconomyBridge economy = new VaultEconomyBridge();
+        AlkaMessageProvider messages = new AlkaMessageProvider(getConfig());
+
+        AlkaAPI.register(new AlkaAPI(database, currency, economy, messages));
+
+        getServer().getPluginManager().registerEvents(new GuiListener(), this);
+
+        getLogger().info("AlkaCore habilitado! v" + getDescription().getVersion()
+            + " (banco: " + (database.isMySQL() ? "MySQL" : "SQLite")
+            + ", economia: " + (economy.isAvailable() ? "Vault conectado" : "Vault indisponivel") + ")");
+    }
+
+    @Override
+    public void onDisable() {
+        AlkaAPI.unregister();
+        if (database != null) database.close();
+    }
+}

@@ -1,0 +1,16 @@
+# AlkaCore - unica fonte de conexao de banco para quem usar AlkaAPI.get().getDatabase().
+# Plugins Alka* que migrarem para o Core param de ter seu proprio mysql.enabled/sqlite.file.
+mysql:
+  enabled: false        # true = tenta MySQL primeiro; se a conexao falhar, cai pra SQLite sozinho
+  host: "localhost"
+  port: 3306
+  database: "alkacore"
+  username: "root"
+  password: "senha"
+  pool-size: 10
+
+sqlite:
+  file: "database.db"
+
+messages:
+  prefix: "<gradient:#f6d365:#fda085>[AlkaCore]</gradient> <white>"

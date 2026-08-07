@@ -1,0 +1,8 @@
+name: AlkaCore
+version: '${version}'
+main: com.alkacode.core.AlkaCorePlugin
+api-version: '1.21.8'
+author: MestreDEV
+description: Infraestrutura compartilhada da network Alka* - banco de dados, GUI, moedas secundarias, ponte de economia e mensagens. Sem logica de jogo.
+load: STARTUP
+softdepend: [Vault, PlaceholderAPI, ProtocolLib, LuckPerms]
