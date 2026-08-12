@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.alkacode"
-version = "1.0.0"
+version = "1.0.1"
 
 java {
     toolchain {
@@ -43,6 +43,7 @@ dependencies {
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
     options.release.set(21)
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 tasks.named<ShadowJar>("shadowJar") {

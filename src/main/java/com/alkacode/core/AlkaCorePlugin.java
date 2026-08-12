@@ -34,7 +34,7 @@ public final class AlkaCorePlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new GuiListener(), this);
 
-        getLogger().info("AlkaCore habilitado! v" + getDescription().getVersion()
+        getLogger().info("AlkaCore habilitado! v" + getPluginMeta().getVersion()
             + " (banco: " + (database.isMySQL() ? "MySQL" : "SQLite")
             + ", economia: " + (economy.isAvailable() ? "Vault conectado" : "Vault indisponivel") + ")");
     }
