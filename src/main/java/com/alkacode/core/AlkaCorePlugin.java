@@ -7,6 +7,7 @@ import com.alkacode.core.database.DatabaseFactory;
 import com.alkacode.core.economy.VaultEconomyBridge;
 import com.alkacode.core.gui.GuiListener;
 import com.alkacode.core.message.AlkaMessageProvider;
+import com.alkacode.core.scheduler.AlkaScheduler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -17,17 +18,19 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public final class AlkaCorePlugin extends JavaPlugin {
     private DatabaseProvider database;
+    private AlkaScheduler scheduler;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
+        this.scheduler = new AlkaScheduler(this);
         this.database = DatabaseFactory.create(this);
-        CurrencyRepository currency = new CurrencyRepository(database);
+        CurrencyRepository currency = new CurrencyRepository(database, scheduler);
         VaultEconomyBridge economy = new VaultEconomyBridge();
         AlkaMessageProvider messages = new AlkaMessageProvider(getConfig());
 
-        AlkaAPI.register(new AlkaAPI(database, currency, economy, messages));
+        AlkaAPI.register(new AlkaAPI(database, currency, economy, messages, scheduler));
 
         getServer().getPluginManager().registerEvents(new GuiListener(), this);
 
@@ -38,6 +41,9 @@ public final class AlkaCorePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Cancela tasks assincronas (autosave etc) ANTES de fechar o pool, senao
+        // uma escrita pendente pode estourar depois do banco ja fechado.
+        if (scheduler != null) scheduler.cancelAll();
         AlkaAPI.unregister();
         if (database != null) database.close();
     }

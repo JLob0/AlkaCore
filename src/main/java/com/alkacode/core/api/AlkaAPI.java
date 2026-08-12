@@ -1,5 +1,7 @@
 package com.alkacode.core.api;
 
+import com.alkacode.core.scheduler.AlkaScheduler;
+
 /**
  * Acessor estatico da API do AlkaCore. Inicializado uma unica vez por
  * {@code AlkaCorePlugin.onEnable()} - plugins consumidores so leem, nunca criam
@@ -15,12 +17,14 @@ public final class AlkaAPI {
     private final CurrencyAPI currency;
     private final EconomyBridge economy;
     private final MessageProvider messages;
+    private final AlkaScheduler scheduler;
 
-    public AlkaAPI(DatabaseProvider database, CurrencyAPI currency, EconomyBridge economy, MessageProvider messages) {
+    public AlkaAPI(DatabaseProvider database, CurrencyAPI currency, EconomyBridge economy, MessageProvider messages, AlkaScheduler scheduler) {
         this.database = database;
         this.currency = currency;
         this.economy = economy;
         this.messages = messages;
+        this.scheduler = scheduler;
     }
 
     /** Chamado uma unica vez, em AlkaCorePlugin#onEnable. */
@@ -46,4 +50,5 @@ public final class AlkaAPI {
     public CurrencyAPI getCurrency() { return currency; }
     public EconomyBridge getEconomy() { return economy; }
     public MessageProvider getMessages() { return messages; }
+    public AlkaScheduler getScheduler() { return scheduler; }
 }

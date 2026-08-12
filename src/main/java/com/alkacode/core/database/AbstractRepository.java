@@ -62,8 +62,40 @@ public abstract class AbstractRepository {
         }
     }
 
+    /**
+     * Roda {@code callback} dentro de uma transacao na mesma conexao: abre, executa,
+     * commita. Em qualquer excecao da rollback e relanca, pro chamador decidir o que
+     * fazer. Usar quando uma operacao envolve varias escritas que precisam ser
+     * atomicas (ex: transferencia que debita e credita - nunca deixar um lado so).
+     */
+    protected <T> T inTransaction(TransactionCallback<T> callback) throws SQLException {
+        try (Connection conn = db.getConnection()) {
+            boolean autoCommit = conn.getAutoCommit();
+            try {
+                conn.setAutoCommit(false);
+                T result = callback.accept(conn);
+                conn.commit();
+                return result;
+            } catch (SQLException | RuntimeException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackError) {
+                    e.addSuppressed(rollbackError);
+                }
+                throw e;
+            } finally {
+                conn.setAutoCommit(autoCommit);
+            }
+        }
+    }
+
     @FunctionalInterface
     public interface SQLConsumer<T> {
         void accept(T t) throws SQLException;
+    }
+
+    @FunctionalInterface
+    public interface TransactionCallback<T> {
+        T accept(Connection conn) throws SQLException;
     }
 }
