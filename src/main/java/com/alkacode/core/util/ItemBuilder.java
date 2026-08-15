@@ -1,14 +1,19 @@
 package com.alkacode.core.util;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /** Builder de ItemStack em MiniMessage - equivalente generico ao antigo ItemBuilder baseado em ChatColor/'&'. */
 public class ItemBuilder {
@@ -21,6 +26,17 @@ public class ItemBuilder {
     public ItemBuilder(Material material) {
         this.item = new ItemStack(material);
         this.meta = item.getItemMeta();
+    }
+
+    /** PLAYER_HEAD com textura Base64 custom (skin de mob/cabeca cosmetica) - sem nome/lore, encadeie com name()/lore(). */
+    public static ItemStack skullFromTexture(String base64Texture) {
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) skull.getItemMeta();
+        PlayerProfile profile = (PlayerProfile) Bukkit.createProfile(UUID.randomUUID());
+        profile.setProperty(new ProfileProperty("textures", base64Texture));
+        meta.setPlayerProfile(profile);
+        skull.setItemMeta(meta);
+        return skull;
     }
 
     public static ItemBuilder of(String materialName, Material fallback) {

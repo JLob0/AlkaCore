@@ -1,15 +1,18 @@
 package com.alkacode.core.gui;
 
+import com.alkacode.core.util.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -101,6 +104,49 @@ public abstract class BaseGui implements InventoryHolder {
         meta.getPersistentDataContainer().set(
             new NamespacedKey(plugin, "gui_item"), PersistentDataType.STRING, "true");
 
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    /** Layout por char-map (linhas de 9 caracteres, um por slot) - espaco ou '_' pula o slot,
+     * qualquer outro char presente em icons vira setItem(slot, icons.get(c), clicks.get(c)).
+     * Generaliza fillBorder/fill: a borda e so mais uma entrada no mapa de icons. */
+    protected void layout(String[] rows, Map<Character, ItemStack> icons, Map<Character, Consumer<InventoryClickEvent>> clicks) {
+        for (int row = 0; row < rows.length; row++) {
+            String line = rows[row];
+            for (int col = 0; col < line.length() && col < 9; col++) {
+                char c = line.charAt(col);
+                if (c == ' ' || c == '_') continue;
+                ItemStack icon = icons.get(c);
+                if (icon == null) continue;
+                setItem(row * 9 + col, icon, clicks == null ? null : clicks.get(c));
+            }
+        }
+    }
+
+    /** PLAYER_HEAD com textura Base64 custom (cabeca cosmetica/mob-head) - ver ItemBuilder#skullFromTexture. */
+    protected ItemStack headTexture(String base64Texture, String displayName, String... lore) {
+        ItemStack skull = ItemBuilder.skullFromTexture(base64Texture);
+        ItemMeta meta = skull.getItemMeta();
+        meta.displayName(MiniMessage.miniMessage().deserialize("<!i>" + displayName));
+
+        List<Component> loreList = new ArrayList<>();
+        for (String line : lore) {
+            loreList.add(MiniMessage.miniMessage().deserialize("<!i><gray>" + line));
+        }
+        meta.lore(loreList);
+
+        meta.getPersistentDataContainer().set(
+            new NamespacedKey(plugin, "gui_item"), PersistentDataType.STRING, "true");
+        skull.setItemMeta(meta);
+        return skull;
+    }
+
+    /** Aplica glow (enchant fake + HIDE_ENCHANTS) num item ja pronto - mesmo padrao de ItemBuilder#glow(boolean). */
+    protected ItemStack glow(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addEnchant(Enchantment.UNBREAKING, 1, true);
         item.setItemMeta(meta);
         return item;
     }
