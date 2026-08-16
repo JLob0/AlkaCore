@@ -7,23 +7,29 @@
 Banco de dados, economia, mensagens, GUI e agendamento assíncrono — **uma única**
 implementação, usada por todos os plugins `Alka*`.
 
-`Java 21` · `Paper 1.21.8+` · `Folia-ready` · `MySQL` & `SQLite`
+![Java](https://img.shields.io/badge/Java-21-orange)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.21.8-green)
+![Folia](https://img.shields.io/badge/Folia-ready-blueviolet)
+![Version](https://img.shields.io/badge/Version-1.0.3-blue)
+![License](https://img.shields.io/badge/License-Proprietary-red)
 
 </div>
 
 ---
 
-## O que é
+## 📋 Sobre o Projeto
 
-O **AlkaCore** é o hub central da sua rede de plugins `Alka*`. Em vez de cada
-plugin reinventar a roda (sua própria conexão de banco, sua própria GUI, suas
-próprias mensagens), todos compartilham o mesmo núcleo: **uma** conexão de banco,
-**um** motor de GUI, **uma** ponte de economia e **um** sistema de mensagens.
+O **AlkaCore** é o hub central da rede de plugins `Alka*`. Em vez de cada
+plugin reinventar a roda — sua própria conexão de banco, sua própria GUI, suas
+próprias mensagens — todos compartilham o mesmo núcleo: **uma** conexão de
+banco, **um** motor de GUI, **uma** ponte de economia e **um** sistema de
+mensagens.
 
-> Regra de ouro: **o Core não tem lógica de jogo.** Ele entrega a infraestrutura;
-> o jogo fica nos plugins filhos (`AlkaEconomy`, `AlkaMines`, `AlkaRankUp`, ...).
+> Regra de ouro: **o Core não tem lógica de jogo.** Ele entrega a
+> infraestrutura; o jogo fica nos plugins filhos (`AlkaEconomy`, `AlkaMines`,
+> `AlkaRankUp`, ...).
 
-## Recursos
+## ✨ Funcionalidades Principais
 
 | Módulo | Descrição |
 | --- | --- |
@@ -33,11 +39,17 @@ próprias mensagens), todos compartilham o mesmo núcleo: **uma** conexão de ba
 | 💰 **CurrencyAPI** | Moedas secundárias genéricas (pó, fragmentos, tokens) numa tabela única, com variantes **assíncronas** (`CompletableFuture`). |
 | 💵 **EconomyBridge** | Ponte para a economia principal via **Vault** (funciona com qualquer provider, ex.: AlkaEconomy). |
 | 💬 **MessageProvider** | Mensagens com **MiniMessage** e prefixo configurável. |
-| 🖼️ **BaseGui** | Motor de inventários (páginas, itens com ação, skulls) usado por todos os plugins. |
+| 🖼️ **BaseGui** | Motor de inventários (páginas, itens com ação, skulls, glow) usado por todos os plugins. |
 | 🔌 **Hooks** | Detecção segura de `LuckPerms`, `PlaceholderAPI` e `ProtocolLib` — se um não carregar, o Core não quebra. |
 | ⚡ **AlkaScheduler** | Agendamento assíncrono via `AsyncScheduler` do Paper — funciona **igual no Folia**. Nenhum I/O de banco na main thread. |
 
-## Instalação
+## 🔗 Integrações
+
+Base para todo o ecossistema `Alka*` (AlkaEconomy, AlkaMines, AlkaRankUp,
+AlkaVips, AlkaShop e demais). Faz ponte opcional com **Vault**,
+**PlaceholderAPI**, **LuckPerms** e **ProtocolLib**.
+
+## ⚙️ Instalação
 
 1. Coloque `AlkaCore.jar` na pasta `plugins/` do servidor (Paper **1.21.8+**).
 2. Reinicie o servidor.
@@ -52,7 +64,7 @@ próprias mensagens), todos compartilham o mesmo núcleo: **uma** conexão de ba
 | [LuckPerms](https://luckperms.net/) | Grupo primário do jogador. |
 | [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) | Detecção de presença (packets ficam a cargo de cada plugin). |
 
-## Configuração
+## 🔧 Configuração
 
 ```yaml
 mysql:
@@ -71,7 +83,7 @@ messages:
   prefix: "<gradient:#f6d365:#fda085>[AlkaCore]</gradient> <white>"
 ```
 
-## Uso em um plugin `Alka*`
+## 🛠️ Uso em um plugin `Alka*`
 
 ### 1. Dependa do AlkaCore
 
@@ -84,7 +96,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.alkacode:AlkaCore:1.0.1")
+    compileOnly("com.alkacode:AlkaCore:1.0.3")
 }
 ```
 
@@ -132,22 +144,40 @@ getAlkaAPI().getScheduler()
     .runAsyncRepeating(() -> flush(), 20L, 6000L); // a cada 5 min, fora da main thread
 ```
 
-## Compilar
+### Compilar
 
 ```bash
 ./gradlew build
 ```
 
-O jar final (com as libs de banco relocadas) fica em `build/libs/AlkaCore-1.0.1.jar`.
+O jar final (com as libs de banco relocadas) fica em `build/libs/AlkaCore-1.0.3.jar`.
 O jar "puro" da API é publicado no Maven local para os plugins filhos consumirem.
 
-## Stack
+## 🔧 Tecnologias Utilizadas
 
 - **Java 21** · **Gradle** (com `shadow` para embutir as libs de banco)
 - **Paper API 1.21.8** (compatível com Folia)
 - **HikariCP** (pool) · **SQLite JDBC** · **MySQL Connector/J**
 - **Adventure/MiniMessage** para mensagens e GUI
 
-## Licença
+## 📝 Licença
 
-Projeto privado da rede **Alka\***. Uso interno.
+> ⚠️ **Projeto proprietário da AlkaStudio.**
+>
+> Código fonte destinado exclusivamente ao uso interno da rede `Alka*`.
+> Reprodução, distribuição ou uso não autorizado não são permitidos.
+
+## 🎯 Créditos
+
+- **Desenvolvido por**: MestreDEV — AlkaStudio
+- **Base de**: todo o ecossistema `Alka*`
+
+---
+
+<div align="center">
+
+**Desenvolvido com ❤️ pela AlkaStudio**
+
+[![AlkaStudio](https://img.shields.io/badge/AlkaStudio-JLob0-blue)](https://github.com/JLob0)
+
+</div>
