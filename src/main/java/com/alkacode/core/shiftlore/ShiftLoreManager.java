@@ -59,10 +59,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ShiftLoreManager implements Listener {
 
     private final ShiftLoreService service;
+    private final JavaPlugin plugin;
     private final Set<UUID> openInventories = ConcurrentHashMap.newKeySet();
 
     public ShiftLoreManager(JavaPlugin plugin, ShiftLoreService service) {
         this.service = service;
+        this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         registerPacketListeners(plugin);
     }
@@ -155,60 +157,91 @@ public final class ShiftLoreManager implements Listener {
 
     /**
      * Forca um reenvio real de todos os slots do container aberto. Zera o cache de
-     * deteccao de mudanca do NMS e chama {@code updateInventory()}, que entao envia
-     * SET_SLOT de todos os slots (e esses passam pelos listeners acima, trocando a
-     * lore conforme o estado do Shift). Nunca lanca - qualquer falha de reflexao cai
+     * deteccao de mudanca ({@code lastSlots}) do NMS e chama
+     * {@code broadcastChanges()} direto nesse container - e isso que envia SET_SLOT
+     * de todos os slots ao cliente, e esses passam pelos listeners acima, trocando a
+     * lore conforme o estado do Shift.
+     *
+     * <p>Nao usamos {@code player.updateInventory()} como caminho principal porque ele
+     * reenvia o menu cujo cache foi limpo de forma incerta; aqui limpamos e fazemos o
+     * broadcast no proprio {@code containerMenu} (o inventario realmente aberto), que
+     * e o unico que o cliente esta vendo. Nunca lanca - qualquer falha de reflexao cai
      * no fallback (updateInventory simples, que no pior caso nao reenvia nada).
      */
     private void forceResend(Player player) {
         try {
             Method getHandle = player.getClass().getMethod("getHandle");
             Object serverPlayer = getHandle.invoke(player);
-            for (String menuField : new String[]{"containerMenu", "inventoryMenu"}) {
-                Field field;
-                try {
-                    field = serverPlayer.getClass().getField(menuField);
-                } catch (NoSuchFieldException e) {
-                    continue;
-                }
-                Object menu = field.get(serverPlayer);
-                if (menu != null) {
-                    resetLastSlots(menu);
-                }
+            Object menu = readField(serverPlayer, "containerMenu");
+            if (menu == null) {
+                menu = readField(serverPlayer, "inventoryMenu");
+            }
+            if (menu != null) {
+                int reset = resetLastSlots(menu);
+                invokeBroadcastChanges(menu);
+                plugin.getLogger().fine("Shift-Lore: forceResend em " + player.getName()
+                        + " (slots resetados: " + reset + ").");
+                return;
             }
         } catch (Throwable t) {
-            // reflexao falhou - segue pro fallback abaixo.
+            plugin.getLogger().warning("Shift-Lore: reflexao do forceResend falhou ("
+                    + t + ") - usando updateInventory (fallback).");
         }
         player.updateInventory();
+    }
+
+    private Object readField(Object target, String name) {
+        try {
+            Field field = findField(target.getClass(), name);
+            if (field == null) {
+                return null;
+            }
+            field.setAccessible(true);
+            return field.get(target);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     /**
      * Marca todos os slots do menu como "mudados" colocando um item vazio (NMS
      * ItemStack.EMPTY) no cache lastSlots, pra {@code broadcastChanges()} reenviar
-     * todos os slots em vez de so os realmente alterados.
+     * todos os slots em vez de so os realmente alterados. Retorna a quantidade de
+     * slots marcados, ou -1 se nao conseguiu.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private void resetLastSlots(Object menu) {
+    private int resetLastSlots(Object menu) {
         try {
             Field lastSlots = findField(menu.getClass(), "lastSlots");
             if (lastSlots == null) {
-                return;
+                return -1;
             }
             lastSlots.setAccessible(true);
             Object cache = lastSlots.get(menu);
             if (!(cache instanceof List)) {
-                return;
+                return -1;
             }
             Object empty = nmsEmptyItem();
             if (empty == null) {
-                return;
+                return -1;
             }
             List list = (List) cache;
-            for (int i = 0; i < list.size(); i++) {
+            int count = list.size();
+            for (int i = 0; i < count; i++) {
                 list.set(i, empty);
             }
+            return count;
         } catch (Throwable t) {
-            // nome de campo/versao diferente - nao quebra, so nao force o reenvio.
+            return -1;
+        }
+    }
+
+    private void invokeBroadcastChanges(Object menu) {
+        try {
+            Method method = menu.getClass().getMethod("broadcastChanges");
+            method.invoke(menu);
+        } catch (Throwable t) {
+            plugin.getLogger().fine("Shift-Lore: nao foi possivel chamar broadcastChanges: " + t);
         }
     }
 
