@@ -7,6 +7,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,6 +42,7 @@ public final class ShiftLoreManager implements Listener {
 
     public ShiftLoreManager(JavaPlugin plugin, ShiftLoreService service) {
         this.service = service;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
         registerPacketListeners(plugin);
     }
 
