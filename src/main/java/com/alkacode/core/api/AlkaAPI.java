@@ -1,6 +1,7 @@
 package com.alkacode.core.api;
 
 import com.alkacode.core.scheduler.AlkaScheduler;
+import com.alkacode.core.shiftlore.ShiftLoreService;
 
 /**
  * Acessor estatico da API do AlkaCore. Inicializado uma unica vez por
@@ -18,13 +19,16 @@ public final class AlkaAPI {
     private final EconomyBridge economy;
     private final MessageProvider messages;
     private final AlkaScheduler scheduler;
+    private final ShiftLoreService shiftLore;
 
-    public AlkaAPI(DatabaseProvider database, CurrencyAPI currency, EconomyBridge economy, MessageProvider messages, AlkaScheduler scheduler) {
+    public AlkaAPI(DatabaseProvider database, CurrencyAPI currency, EconomyBridge economy, MessageProvider messages,
+                    AlkaScheduler scheduler, ShiftLoreService shiftLore) {
         this.database = database;
         this.currency = currency;
         this.economy = economy;
         this.messages = messages;
         this.scheduler = scheduler;
+        this.shiftLore = shiftLore;
     }
 
     /** Chamado uma unica vez, em AlkaCorePlugin#onEnable. */
@@ -51,4 +55,6 @@ public final class AlkaAPI {
     public EconomyBridge getEconomy() { return economy; }
     public MessageProvider getMessages() { return messages; }
     public AlkaScheduler getScheduler() { return scheduler; }
+    /** Nunca null - registrar provider aqui e sempre seguro, mesmo sem ProtocolLib instalado (so fica sem efeito visual). */
+    public ShiftLoreService getShiftLore() { return shiftLore; }
 }

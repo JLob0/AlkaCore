@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.alkacode"
-version = "1.0.3"
+version = "1.0.4"
 
 java {
     toolchain {
@@ -34,6 +34,10 @@ dependencies {
     }
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.luckperms:api:5.4")
+    // ProtocolLib nao tem coordenada Maven publica estavel - mesmo jar local ja
+    // usado no AlkaEffects/AlkaEssentials, so compile-time (o jar real vem do
+    // plugin instalado no servidor).
+    compileOnly(files("libs/ProtocolLib.jar"))
 
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.xerial:sqlite-jdbc:3.46.1.3")

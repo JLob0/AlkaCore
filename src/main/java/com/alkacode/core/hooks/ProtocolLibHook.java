@@ -12,6 +12,6 @@ public final class ProtocolLibHook {
     private ProtocolLibHook() {}
 
     public static boolean isPresent() {
-        return Bukkit.getPluginManager().getPlugin("ProtocolLib") != null;
+        return Bukkit.getPluginManager().isPluginEnabled("ProtocolLib");
     }
 }

@@ -8,6 +8,9 @@ import com.alkacode.core.economy.VaultEconomyBridge;
 import com.alkacode.core.gui.GuiListener;
 import com.alkacode.core.message.AlkaMessageProvider;
 import com.alkacode.core.scheduler.AlkaScheduler;
+import com.alkacode.core.shiftlore.ShiftLoreBootstrap;
+import com.alkacode.core.shiftlore.ShiftLoreService;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -29,10 +32,15 @@ public final class AlkaCorePlugin extends JavaPlugin {
         CurrencyRepository currency = new CurrencyRepository(database, scheduler);
         VaultEconomyBridge economy = new VaultEconomyBridge();
         AlkaMessageProvider messages = new AlkaMessageProvider(getConfig());
+        ShiftLoreService shiftLore = ShiftLoreBootstrap.createService();
 
-        AlkaAPI.register(new AlkaAPI(database, currency, economy, messages, scheduler));
+        AlkaAPI.register(new AlkaAPI(database, currency, economy, messages, scheduler, shiftLore));
 
         getServer().getPluginManager().registerEvents(new GuiListener(), this);
+
+        // ProtocolLib e softdepend - sem ordem garantida de onEnable (mesma licao
+        // ja aplicada no AlkaDrop). Nunca resolver isso sincrono aqui.
+        Bukkit.getScheduler().runTask(this, () -> ShiftLoreBootstrap.enable(this, shiftLore));
 
         getLogger().info("AlkaCore habilitado! v" + getPluginMeta().getVersion()
             + " (banco: " + (database.isMySQL() ? "MySQL" : "SQLite")

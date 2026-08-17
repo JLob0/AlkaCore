@@ -1,0 +1,31 @@
+# Shift-Lore System do AlkaCore - "segure Shift para ver detalhes" em itens
+# vanilla, sem precisar de plugin nenhum. Qualquer plugin da rede pode ainda
+# registrar lore dinamica via ShiftLoreProvider (getAlkaAPI().getShiftLore()) -
+# isso aqui e so pra item vanilla puro.
+#
+# Requer ProtocolLib instalado - sem ele, o sistema so fica sem efeito visual
+# (nenhum erro, ver log no /reload).
+
+enabled: true
+
+vanilla-items:
+  # Exemplo - apague ou edite a vontade.
+  # fishing_rod:
+  #   match:
+  #     material: FISHING_ROD
+  #     # name: "<gray>Vara de Pesca"          # opcional - so aplica se o nome bater
+  #     # custom-model-data: 0                  # opcional
+  #   lore-short:
+  #     - "<gray>Uma vara de pesca comum"
+  #   lore-detailed:
+  #     - "<dark_aqua><bold>Vara de Pesca"
+  #     - ""
+  #     - "<gray>Uma simples vara de pesca."
+  #     - ""
+  #     - "<yellow>Segure <gold>Shift <yellow>para ver detalhes"
+
+# Nunca aplicar shift-lore nesses materiais.
+blacklist:
+  - AIR
+  - BARRIER
+  - STRUCTURE_VOID
