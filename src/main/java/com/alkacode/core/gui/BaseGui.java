@@ -64,6 +64,12 @@ public abstract class BaseGui implements InventoryHolder {
     public abstract void render();
 
     protected void setItem(int slot, ItemStack item, Consumer<InventoryClickEvent> action) {
+        if (slot < 0 || slot >= inventory.getSize()) {
+            plugin.getLogger().warning("[BaseGui] " + getClass().getSimpleName()
+                    + " tentou setar slot " + slot + " em inventário de "
+                    + inventory.getSize() + " slots.");
+            return;
+        }
         inventory.setItem(slot, item);
         if (action != null) actions.put(slot, action);
     }

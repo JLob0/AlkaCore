@@ -23,8 +23,29 @@ public abstract class AbstractRepository {
         String columnList = String.join(", ", columns);
         String placeholders = String.join(", ", java.util.Collections.nCopies(columns.length, "?"));
 
-        StringBuilder sb = new StringBuilder("INSERT INTO ").append(table)
-            .append(" (").append(columnList).append(") VALUES (").append(placeholders).append(")");
+        // Se TODAS as colunas fazem parte da chave única (ex.: tabela de junção
+        // player_uuid+perk_id sem colunas extra), não sobra nada pra por no SET/UPDATE -
+        // "...DO UPDATE SET " ou "...ON DUPLICATE KEY UPDATE " vazio é SQL inválido em
+        // qualquer um dos dois bancos. Nesse caso é só ignorar duplicata mesmo.
+        boolean hasNonKeyColumn = false;
+        for (String col : columns) {
+            if (!contains(uniqueKeys, col)) {
+                hasNonKeyColumn = true;
+                break;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder(!hasNonKeyColumn && db.isSQLite() ? "INSERT OR IGNORE INTO " : "INSERT INTO ")
+            .append(table).append(" (").append(columnList).append(") VALUES (").append(placeholders).append(")");
+
+        if (!hasNonKeyColumn) {
+            if (!db.isSQLite()) {
+                // MySQL não tem "INSERT IGNORE" combinável com essa montagem - atualiza a
+                // própria chave (no-op) só pra manter a sintaxe do ON DUPLICATE KEY válida.
+                sb.append(" ON DUPLICATE KEY UPDATE ").append(uniqueKeys[0]).append(" = ").append(uniqueKeys[0]);
+            }
+            return sb.toString();
+        }
 
         if (db.isSQLite()) {
             sb.append(" ON CONFLICT(").append(String.join(", ", uniqueKeys)).append(") DO UPDATE SET ");
