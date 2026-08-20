@@ -10,7 +10,8 @@ import java.util.UUID;
 
 /**
  * Ponte pro Vault via ServicesManager - funciona com qualquer plugin que registre
- * um provider Vault (hoje, o VaultHook do AlkaEconomy cobrindo COINS). O Core
+ * um provider Vault (hoje, o VaultHook do AlkaEconomy cobrindo CurrencyType.COINS,
+ * id atual "gold"). O Core
  * nunca importa classes do AlkaEconomy, so fala com a API generica do Vault.
  */
 public final class VaultEconomyBridge implements EconomyBridge {

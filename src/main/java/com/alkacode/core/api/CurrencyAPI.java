@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
  * `alkacore_currencies` compartilhada por quem usar o AlkaCore, identificadas por
  * um currencyId livre por plugin (ex: "alkaclasses_dust", "alkamines_fragments").
  *
- * NAO e substituto do AlkaEconomy (COINS/DRAKONIO/NACAR/ESCARION/SOULS) - aquilo
+ * NAO e substituto do AlkaEconomy (gold/alkarion/nacar/escarion/soul) - aquilo
  * continua sendo a economia principal da network, acessada via {@link EconomyBridge}.
  * Isso aqui e so pra parar de cada plugin reinventar sua propria tabela tipo
  * `player_dust` pra saldo secundario que so aquele plugin usa.
